@@ -69,7 +69,7 @@ const UploadForm = () => {
       backgroundColor: '#fff'
     }}>
       <h1 style={{ textAlign: 'center', color: '#333', marginBottom: 30 }}>
-        🧾 Pembacaan Struk & Faktur Otomatis 📸
+        🧾 OCR-STRUK-APP 📸
       </h1>
 
       <div style={{ marginBottom: 20 }}>
