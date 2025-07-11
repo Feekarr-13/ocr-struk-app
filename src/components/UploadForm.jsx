@@ -1,23 +1,21 @@
 // src/components/UploadForm.jsx
 import React, { useState } from "react";
 import Tesseract from "tesseract.js";
-import parseOcrText from "../utils/ocrParser"; // Import fungsi parsing
-import ParsedDataDisplay from "./ParsedDataDisplay"; // Import komponen display
+import parseOcrText, { saveToFirestore } from "../utils/ocrParser"; // ✅ Import saveToFirestore
+import ParsedDataDisplay from "./ParsedDataDisplay";
 
 const UploadForm = () => {
   const [image, setImage] = useState(null);
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [parsedData, setParsedData] = useState(null); // State untuk data yang diparsing
+  const [parsedData, setParsedData] = useState(null);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(URL.createObjectURL(file));
-      setText(""); // Reset teks dan data yang diparsing
+      setText("");
       setParsedData(null);
-      // Optional: Clear previous image URL to prevent memory leaks for large images
-      // if (image) URL.revokeObjectURL(image);
     }
   };
 
@@ -28,15 +26,13 @@ const UploadForm = () => {
     }
 
     setLoading(true);
-    setText(""); // Bersihkan hasil sebelumnya
-    setParsedData(null); // Bersihkan data parsing sebelumnya
+    setText("");
+    setParsedData(null);
 
     try {
-      // Tesseract.js akan mendownload core dan bahasa saat pertama kali digunakan
-      const result = await Tesseract.recognize(image, "ind+eng", { // Coba tambahkan 'ind' untuk Bahasa Indonesia
+      const result = await Tesseract.recognize(image, "ind+eng", {
         logger: (m) => {
-          // Log progress OCR
-          if (m.status === 'recognizing') {
+          if (m.status === "recognizing") {
             console.log(`OCR Progress: ${Math.round(m.progress * 100)}%`);
           }
         },
@@ -45,9 +41,14 @@ const UploadForm = () => {
       const extractedText = result.data.text;
       setText(extractedText);
 
-      // Panggil fungsi parsing setelah OCR selesai
+      setText(extractedText);
+
+      // ✅ Parse teks terlebih dahulu
       const data = parseOcrText(extractedText);
       setParsedData(data);
+
+      // ✅ Baru simpan hasil parsing ke Firestore
+      await saveToFirestore(data);
 
     } catch (error) {
       console.error("OCR Error:", error);
@@ -68,9 +69,12 @@ const UploadForm = () => {
       fontFamily: 'Arial, sans-serif',
       backgroundColor: '#fff'
     }}>
-      <h1 style={{ textAlign: 'center', color: '#333', marginBottom: 30 }}>
-        🧾 OCR-STRUK-APP 📸
-      </h1>
+    <h1 style={{ textAlign: 'center', color: '#333', marginBottom: 10 }}>
+    🧾 B-TRACE 📸
+    </h1>
+    <p style={{ textAlign: 'center', color: '#555', fontSize: '14px', marginBottom: 30 }}>
+      Otomatisasi Pembacaan Struk BBM dengan OCR
+    </p>
 
       <div style={{ marginBottom: 20 }}>
         <input
@@ -134,7 +138,6 @@ const UploadForm = () => {
         </div>
       )}
 
-      {/* Menampilkan data yang diparsing */}
       {parsedData && <ParsedDataDisplay data={parsedData} />}
     </div>
   );

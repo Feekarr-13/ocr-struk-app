@@ -1,10 +1,12 @@
-// src/components/ParsedDataDisplay.jsx
 import React from 'react';
 
 const ParsedDataDisplay = ({ data }) => {
-  if (!data) {
-    return null; // Jangan tampilkan apa-apa jika belum ada data
-  }
+  if (!data) return null;
+
+  const total =
+    typeof data.total === 'number'
+      ? data.total
+      : parseInt(data.total?.toString().replace(/\D/g, ''), 10);
 
   return (
     <div style={{
@@ -16,16 +18,18 @@ const ParsedDataDisplay = ({ data }) => {
       boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
     }}>
       <h4 style={{ marginBottom: 10, color: '#333' }}>Data Penting Ditemukan:</h4>
+
       <p style={{ margin: '5px 0' }}>
         <strong>Total:</strong>{' '}
-        {data.total !== null ? (
+        {total && !isNaN(total) ? (
           <span style={{ color: '#28a745', fontWeight: 'bold' }}>
-            Rp {data.total.toLocaleString('id-ID')}
+            Rp {total.toLocaleString('id-ID')}
           </span>
         ) : (
           <span style={{ color: '#dc3545' }}>Tidak ditemukan</span>
         )}
       </p>
+
       <p style={{ margin: '5px 0' }}>
         <strong>Tanggal:</strong>{' '}
         {data.date ? (
@@ -34,6 +38,7 @@ const ParsedDataDisplay = ({ data }) => {
           <span style={{ color: '#dc3545' }}>Tidak ditemukan</span>
         )}
       </p>
+
       <p style={{ margin: '5px 0' }}>
         <strong>Nomor Faktur:</strong>{' '}
         {data.invoiceNumber ? (
